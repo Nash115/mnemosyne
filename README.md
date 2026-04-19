@@ -12,6 +12,32 @@ It is highly recommended to deploy this project using Docker containers (a pre-c
 - `raspberry/` : Raspberry Pi scripts designed to collect data from the Arduino and forward it to the API.
 - `docker-compose.yml` : The configuration file to deploy the API and the PostgreSQL database (and optionally Grafana). Contains profiles for Raspberry Pi agent and also emulator for testing purposes.
 
+## ☁️ Example Use Case
+
+```mermaid
+graph LR
+    subgraph "Local"
+        A[Arduino] -- "Serial\n(Every seconds)" --> B[Raspberry Pi\nPython Agent]
+        B -. "Save in json\n(if API unavailable)" .-> B
+    end
+
+    subgraph "Server (Cloud)"
+        C{Node.js API}
+        D[(PostgreSQL)]
+        E[Grafana]
+        
+        C -- "SQL Query (INSERT)" --> D
+        E -- "SQL Query (SELECT)" --> D
+    end
+
+    B == "HTTP POST" === C
+    Utilisateur((User)) -- "Web UI" --> E
+
+    class A,B hardware;
+    class C,E software;
+    class D database;
+```
+
 ## 🚀 Deployment
 
 ### Prerequisites & Tools
