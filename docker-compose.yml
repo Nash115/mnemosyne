@@ -1,0 +1,70 @@
+services:
+  mnemosyne-db:
+    image: postgres:18-alpine
+    container_name: mnemosyne-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/18/docker
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mnemosyne-internal
+
+  api:
+    build: ./api
+    container_name: weather_api
+    restart: unless-stopped
+    environment:
+      - PORT_API=5042
+      - DB_HOST=mnemosyne-db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - API_KEYS=${API_KEYS}
+    ports:
+      - "5042:5042"
+    depends_on:
+      mnemosyne-db:
+        condition: service_healthy
+    networks:
+      - mnemosyne-internal
+
+  agent-serial:
+    profiles: ["pi"]
+    build: ./raspberry
+    restart: unless-stopped
+    environment:
+      - API_URL=${API_URL}
+      - API_KEY=${API_KEY}
+      - SERIAL_PORT=${SERIAL_PORT:-/dev/ttyACM0}
+    devices:
+      - ${SERIAL_PORT:-/dev/ttyACM0}:${SERIAL_PORT:-/dev/ttyACM0}
+    volumes:
+      - ./data/raspberry/cache:/app/cache
+    networks:
+      - mnemosyne-internal
+
+  agent-emulator:
+    profiles: ["emulator"]
+    build: ./raspberry
+    restart: unless-stopped
+    command: ["python", "emulator.py"]
+    environment:
+      - API_URL=${API_URL}
+      - API_KEY=${API_KEY}
+    volumes:
+      - ./data/raspberry/cache:/app/cache
+    networks:
+      - mnemosyne-internal
+
+networks:
+  mnemosyne-internal:
+    driver: bridge
