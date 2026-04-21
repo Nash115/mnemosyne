@@ -4,7 +4,7 @@ mnemosyne is the public implementation of my personal project, `mnemosyne.47`.
 
 Originally designed for weather data tracking, its highly modular architecture allows you to log and analyze statistics for virtually anything (e.g., PC system monitoring, IoT sensors, etc.).
 
-It is highly recommended to deploy this project using Docker containers (a pre-configured `docker-compose.yml` file is provided). Additionally, integrating Grafana for data visualization is an excellent fit and strongly advised (you can easily add it to your docker-compose setup).
+It is highly recommended to deploy this project using Docker containers (a pre-configured `docker-compose.yml` file is provided). Additionally, integrating Grafana for data visualization is an excellent fit and strongly advised.
 
 ## 📂 Repository Structure
 - `api/` : A Node.js API that serves as the interface for the database.
@@ -49,12 +49,13 @@ openssl rand -hex 32
 
 ### Deploying the API and Database
 
-1. Review and edit the `docker-compose.yml` file to configure the necessary services according to your needs.
-2. Copy the `.env.example` file to `.env` and configure your environment variables:
+1. Review the `docker-compose.yml` file
+2. Create a `docker-compose.override.yml` file to customize the services for your environment.
+3. Copy the `.env.example` file to `.env` and configure your environment variables:
   - `DB_PASSWORD` : The password for your PostgreSQL database.
   - `API_KEYS` : Provide one or multiple API keys (comma-separated) to secure access to the API.
-3. You can change the database schema in order to create additional tables for different types of data by editing the `./api/src/config/schema.ts` file. Initially, it contains a simple schema for weather data, but you can modify it to fit your specific use case.
-4. Start the services using Docker Compose:
+4. You can change the database schema in order to create additional tables for different types of data by editing the `./api/src/config/schema.ts` file. Initially, it contains a simple schema for weather data, but you can modify it to fit your specific use case.
+5. Start the services using Docker Compose:
 
 ```bash
 docker compose up -d --build
@@ -85,13 +86,13 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO grafana;
 #### For the serial agent (Raspberry Pi)
 
 ```bash
-docker compose up -d --build agent-serial
+docker compose up -d --build mnemosyne-agent-serial
 ```
 
 #### For the emulator
 
 ```bash
-docker compose up -d --build agent-emulator
+docker compose up -d --build mnemosyne-agent-emulator
 ```
 
 ## 📄 Documentation
@@ -100,9 +101,9 @@ docker compose up -d --build agent-emulator
 
 - GET `/` : Shows a welcome message
 - GET `/health` : Health check endpoint to verify if the API is running (return a `200` with `OK` if healthy)
-- GET `/live/<table_name>` (requires API key) : Retrieves the most recent entry from the specified table
-- POST `/data/<table_name>` (requires API key) : Adds a new entry to the specified table. The request body should be a JSON object containing the data to be stored, with keys corresponding to the column names in the database.
-- GET `/export/<table_name>` (requires API key) : Exports all data from the specified table in CSV format.
+- GET `/live/<table_name>` **(requires API key)** : Retrieves the most recent entry from the specified table
+- POST `/data/<table_name>` **(requires API key)** : Adds a new entry to the specified table. The request body should be a JSON object containing the data to be stored, with keys corresponding to the column names in the database.
+- GET `/export/<table_name>` **(requires API key)** : Exports all data from the specified table in CSV format.
 
 For the routes that require an API key, you need to include an `x-api-key` header in your request with one of the valid API keys you configured in the `.env` file.
 

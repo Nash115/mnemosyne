@@ -17,7 +17,7 @@ services:
     networks:
       - mnemosyne-internal
 
-  api:
+  mnemosyne-api:
     build: ./api
     container_name: mnemosyne-api
     restart: unless-stopped
@@ -37,7 +37,7 @@ services:
     networks:
       - mnemosyne-internal
 
-  agent-serial:
+  mnemosyne-agent-serial:
     profiles: ["pi"]
     build: ./raspberry
     container_name: mnemosyne-agent-serial
@@ -53,7 +53,7 @@ services:
     networks:
       - mnemosyne-internal
 
-  agent-emulator:
+  mnemosyne-agent-emulator:
     profiles: ["emulator"]
     build: ./raspberry
     container_name: mnemosyne-agent-emulator
