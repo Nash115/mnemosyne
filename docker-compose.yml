@@ -19,7 +19,7 @@ services:
 
   api:
     build: ./api
-    container_name: weather_api
+    container_name: mnemosyne-api
     restart: unless-stopped
     environment:
       - PORT_API=5042
@@ -40,6 +40,7 @@ services:
   agent-serial:
     profiles: ["pi"]
     build: ./raspberry
+    container_name: mnemosyne-agent-serial
     restart: unless-stopped
     environment:
       - API_URL=${API_URL}
@@ -55,6 +56,7 @@ services:
   agent-emulator:
     profiles: ["emulator"]
     build: ./raspberry
+    container_name: mnemosyne-agent-emulator
     restart: unless-stopped
     command: ["python", "emulator.py"]
     environment:
